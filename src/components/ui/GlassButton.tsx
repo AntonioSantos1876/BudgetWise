@@ -2,6 +2,7 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../context/ThemeContext';
 
 interface GlassButtonProps {
@@ -21,9 +22,14 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
 }) => {
   const { colors, isDark } = useTheme();
 
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (onPress) onPress();
+  };
+
   return (
     <TouchableOpacity 
-      onPress={onPress} 
+      onPress={handlePress} 
       activeOpacity={0.7}
       disabled={disabled}
       style={[styles.container, style, disabled && { opacity: 0.5 }]}

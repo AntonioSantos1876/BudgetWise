@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Plus } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../context/ThemeContext';
 
 interface FABProps {
@@ -11,10 +12,15 @@ interface FABProps {
 export const FAB: React.FC<FABProps> = ({ onPress }) => {
   const { colors } = useTheme();
 
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    onPress();
+  };
+
   return (
     <TouchableOpacity 
       activeOpacity={0.8} 
-      onPress={onPress}
+      onPress={handlePress}
       style={styles.container}
     >
       <BlurView intensity={80} tint="dark" style={styles.blur}>
