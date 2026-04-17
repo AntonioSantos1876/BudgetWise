@@ -22,7 +22,7 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
 
   return (
     <LinearGradient
-      colors={gradientColors || defaultGradient}
+      colors={(gradientColors as unknown as readonly [string, string, ...string[]]) || (defaultGradient as unknown as readonly [string, string, ...string[]])}
       style={styles.container}
     >
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />

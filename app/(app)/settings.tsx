@@ -9,7 +9,7 @@ import { supabase } from '../../src/lib/supabase';
 import { LogOut, User, Moon, Sun, Settings as SettingsIcon } from 'lucide-react-native';
 
 export default function SettingsScreen() {
-  const { colors, isDark, toggleTheme } = useTheme();
+  const { colors, isDark, setTheme } = useTheme();
   const { user, profile, signOut } = useAuth();
   
   const [loading, setLoading] = useState(false);
@@ -57,7 +57,7 @@ export default function SettingsScreen() {
             </View>
             <Switch 
               value={isDark} 
-              onValueChange={toggleTheme} 
+              onValueChange={(val) => setTheme(val ? 'dark' : 'light')} 
               trackColor={{ false: colors.glassBorder, true: colors.accentViolet }}
               thumbColor={isDark ? '#fff' : '#f4f3f4'}
             />

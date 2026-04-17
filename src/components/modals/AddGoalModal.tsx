@@ -29,6 +29,7 @@ export const AddGoalModal: React.FC<AddGoalModalProps> = ({ visible, onClose }) 
     try {
       await addGoal({
         name,
+        icon: '🎯',
         target_amount: Number(targetAmount),
         target_date: targetDate,
       });

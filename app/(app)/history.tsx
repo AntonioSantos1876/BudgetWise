@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Search, Download } from 'lucide-react-native';
@@ -50,9 +50,16 @@ export default function HistoryScreen() {
     
     const csvContent = header + rows;
     
-    const fileUri = FileSystem.documentDirectory + 'budgetwise_export.csv';
+    if (Platform.OS === 'web') {
+      // Very basic approach for web: log to console or alert since Expo Sharing/FileSystem is missing
+      console.log('CSV Export:', csvContent);
+      Alert.alert('Web Export', 'CSV generated in console (Full web download coming soon).');
+      return;
+    }
+
+    const fileUri = (FileSystem as any).documentDirectory + 'budgetwise_export.csv';
     try {
-      await FileSystem.writeAsStringAsync(fileUri, csvContent, { encoding: FileSystem.EncodingType.UTF8 });
+      await FileSystem.writeAsStringAsync(fileUri, csvContent, { encoding: (FileSystem as any).EncodingType.UTF8 });
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri);
       } else {

@@ -29,7 +29,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({ goal, onPress }) => {
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.textPrimary }]} numberOfLines={1}>{goal.name}</Text>
           <Text style={[styles.date, { color: colors.textSecondary }]}>
-            Target: {new Date(goal.target_date).toLocaleDateString()}
+            Target: {goal.target_date ? new Date(goal.target_date).toLocaleDateString() : 'None'}
           </Text>
         </View>
 

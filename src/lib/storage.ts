@@ -1,10 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
+
+const isWeb = Platform.OS === 'web';
+const safeWindow = typeof window !== 'undefined' ? window : null;
 
 export const storage = {
   async set(key: string, value: any) {
     try {
       const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem(`@budgetwise_${key}`, jsonValue);
+      if (isWeb && safeWindow) {
+        safeWindow.localStorage.setItem(`@budgetwise_${key}`, jsonValue);
+      } else {
+        await AsyncStorage.setItem(`@budgetwise_${key}`, jsonValue);
+      }
     } catch (e) {
       console.error('Error saving to storage', e);
     }
@@ -12,7 +20,12 @@ export const storage = {
   
   async get(key: string) {
     try {
-      const jsonValue = await AsyncStorage.getItem(`@budgetwise_${key}`);
+      let jsonValue = null;
+      if (isWeb && safeWindow) {
+        jsonValue = safeWindow.localStorage.getItem(`@budgetwise_${key}`);
+      } else {
+        jsonValue = await AsyncStorage.getItem(`@budgetwise_${key}`);
+      }
       return jsonValue != null ? JSON.parse(jsonValue) : null;
     } catch (e) {
       console.error('Error reading from storage', e);
@@ -40,7 +53,11 @@ export const storage = {
 
   async remove(key: string) {
     try {
-      await AsyncStorage.removeItem(`@budgetwise_${key}`);
+      if (isWeb && safeWindow) {
+        safeWindow.localStorage.removeItem(`@budgetwise_${key}`);
+      } else {
+        await AsyncStorage.removeItem(`@budgetwise_${key}`);
+      }
     } catch (e) {
       console.error('Error removing from storage', e);
     }
