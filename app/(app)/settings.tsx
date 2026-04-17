@@ -7,6 +7,7 @@ import { GlassCard } from '../../src/components/ui/GlassCard';
 import { GlassButton } from '../../src/components/ui/GlassButton';
 import { supabase } from '../../src/lib/supabase';
 import { LogOut, User, Moon, Sun, Settings as SettingsIcon } from 'lucide-react-native';
+import { Logo } from '../../src/components/ui/Logo';
 
 export default function SettingsScreen() {
   const { colors, isDark, setTheme } = useTheme();
@@ -36,7 +37,10 @@ export default function SettingsScreen() {
     <ScreenWrapper>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>Settings</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>Settings</Text>
+            <Logo size={30} showText={false} />
+          </View>
         </View>
 
         <View style={styles.profileSection}>

@@ -14,6 +14,19 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined
 
 const CACHE_TTL = 1000 * 60 * 30; // 30 minutes
 
+// Fallback rates for when APIs are blocked by CORS (common on Web localhost)
+const FALLBACK_RATES: Record<string, number> = {
+  'USD': 1,
+  'EUR': 0.94,
+  'GBP': 0.80,
+  'JPY': 154,
+  'CAD': 1.38,
+  'AUD': 1.55,
+  'JMD': 155,
+  'SAR': 3.75,
+  'BRL': 5.25,
+};
+
 export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { profile } = useAuth();
   const [rates, setRates] = useState<Record<string, number>>({});
@@ -43,8 +56,15 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       
       // Save to cache
       await storage.setWithTimestamp(`rates_${base}`, newRates);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch exchange rates:', error);
+      
+      // CORS or Network Fallback: Use hardcoded rates if we're on web and fetch fails
+      if (Object.keys(rates).length === 0) {
+        console.warn('Using fallback exchange rates due to network/CORS failure.');
+        setRates(FALLBACK_RATES);
+      }
+
       // Fallback: try to grab expired cache if network totally fails
       const expiredCache = await storage.get(`rates_${base}`);
       if (expiredCache && expiredCache.data) {

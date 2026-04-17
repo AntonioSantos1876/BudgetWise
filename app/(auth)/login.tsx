@@ -6,6 +6,7 @@ import { ScreenWrapper } from '../../src/components/layout/ScreenWrapper';
 import { GlassCard } from '../../src/components/ui/GlassCard';
 import { GlassButton } from '../../src/components/ui/GlassButton';
 import { useTheme } from '../../src/context/ThemeContext';
+import { Logo } from '../../src/components/ui/Logo';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -38,7 +39,7 @@ export default function LoginScreen() {
     <ScreenWrapper style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>BudgetWise</Text>
+          <Logo size={100} style={{ marginBottom: 10 }} />
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Your money, made clear.</Text>
         </View>
 

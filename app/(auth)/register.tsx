@@ -7,6 +7,7 @@ import { GlassCard } from '../../src/components/ui/GlassCard';
 import { GlassButton } from '../../src/components/ui/GlassButton';
 import { useTheme } from '../../src/context/ThemeContext';
 import { CURRENCIES } from '../../src/constants/currencies';
+import { Logo } from '../../src/components/ui/Logo';
 
 const AVATARS = ['💰', '🤑', '💎', '🚀', '🧠', '💼', '💳', '🏦', '💹', '🌴'];
 
@@ -41,45 +42,58 @@ export default function RegisterScreen() {
   };
 
   const handleRegister = async () => {
+    if (loading) return;
     setLoading(true);
     
-    // 1. Sign up user
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          display_name: displayName,
+    try {
+      // 1. Sign up user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: displayName,
+          }
         }
-      }
-    });
+      });
 
-    if (authError) {
-      Alert.alert('Registration Failed', authError.message);
+      if (authError) {
+        console.error('Registration Auth Error:', authError);
+        Alert.alert('Registration Failed', authError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (authData.user) {
+        // 2. Add a tiny delay to ensure the database trigger "handle_new_user" has finished
+        // especially important on high-latency environments (like web localhost to remote supa)
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // 3. The profile is auto-created by our trigger, but we need to update it with the extra fields
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            avatar,
+            primary_currency: primaryCurrency,
+            secondary_currency: secondaryCurrency,
+            monthly_income: parseFloat(monthlyIncome) || 0,
+          })
+          .eq('id', authData.user.id);
+
+        if (profileError) {
+          console.error('Error updating profile metadata:', profileError);
+          // We don't block the user here, they can update profile in settings later
+        }
+
+        // Success, router will redirect based on AuthContext state automatically
+        router.replace('/(app)/dashboard');
+      }
+    } catch (e: any) {
+      console.error('Unexpected Registration Error:', e);
+      Alert.alert('Error', 'An unexpected error occurred during setup.');
+    } finally {
       setLoading(false);
-      return;
     }
-
-    if (authData.user) {
-      // 2. The profile is auto-created by our trigger, but we need to update it with the extra fields
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          avatar,
-          primary_currency: primaryCurrency,
-          secondary_currency: secondaryCurrency,
-          monthly_income: parseFloat(monthlyIncome) || 0,
-        })
-        .eq('id', authData.user.id);
-
-      if (profileError) {
-        console.error('Error updating profile:', profileError);
-      }
-    }
-
-    // Success, router will redirect based on AuthContext state automatically
-    setLoading(false);
-    router.replace('/(app)/dashboard');
   };
 
   const renderStepIndicators = () => {
@@ -102,7 +116,7 @@ export default function RegisterScreen() {
     <ScreenWrapper style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>Create Account</Text>
+          <Logo size={80} style={{ marginBottom: 10 }} />
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             {step === 1 && "Start your journey"}
             {step === 2 && "Personalize your profile"}
@@ -117,6 +131,7 @@ export default function RegisterScreen() {
           {step === 1 && (
             <View>
               <TextInput
+                nativeID="reg-email"
                 style={[styles.input, { color: colors.textPrimary, borderColor: colors.glassBorder, backgroundColor: colors.glassFill }]}
                 placeholder="Email"
                 placeholderTextColor={colors.textSecondary}
@@ -126,6 +141,7 @@ export default function RegisterScreen() {
                 keyboardType="email-address"
               />
               <TextInput
+                nativeID="reg-password"
                 style={[styles.input, { color: colors.textPrimary, borderColor: colors.glassBorder, backgroundColor: colors.glassFill }]}
                 placeholder="Password (min 6 chars)"
                 placeholderTextColor={colors.textSecondary}
@@ -139,6 +155,7 @@ export default function RegisterScreen() {
           {step === 2 && (
             <View>
               <TextInput
+                nativeID="reg-displayname"
                 style={[styles.input, { color: colors.textPrimary, borderColor: colors.glassBorder, backgroundColor: colors.glassFill }]}
                 placeholder="Display Name"
                 placeholderTextColor={colors.textSecondary}
@@ -203,6 +220,7 @@ export default function RegisterScreen() {
             <View>
               <Text style={[styles.label, { color: colors.textSecondary }]}>Estimated Monthly Income ({primaryCurrency}):</Text>
               <TextInput
+                nativeID="reg-income"
                 style={[styles.input, { color: colors.textPrimary, borderColor: colors.glassBorder, backgroundColor: colors.glassFill }]}
                 placeholder="e.g. 5000"
                 placeholderTextColor={colors.textSecondary}

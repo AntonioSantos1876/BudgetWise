@@ -12,6 +12,7 @@ import { MonthlyBar } from '../../src/components/charts/MonthlyBar';
 import { TransactionRow } from '../../src/components/cards/TransactionRow';
 import { FAB } from '../../src/components/layout/FAB';
 import { AddTransactionModal } from '../../src/components/modals/AddTransactionModal';
+import { Logo } from '../../src/components/ui/Logo';
 
 export default function DashboardScreen() {
   const { profile } = useAuth();
@@ -45,9 +46,12 @@ export default function DashboardScreen() {
     <ScreenWrapper>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[styles.greeting, { color: colors.textSecondary }]}>
-            Good morning, {profile?.display_name || 'Guest'} 👋
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Logo size={40} showText={false} style={{ marginRight: 12 }} />
+            <Text style={[styles.greeting, { color: colors.textSecondary }]}>
+              Good morning, {profile?.display_name || 'Guest'} 👋
+            </Text>
+          </View>
         </View>
 
         <BalanceCard transactions={transactions} />
